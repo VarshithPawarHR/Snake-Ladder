@@ -1,0 +1,223 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #87ceeb; /* Sky blue background */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.game-container {
+  text-align: center;
+  max-width: 650px;
+  margin: auto;
+  background: #f5f5f5; /* Light gray */
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.start-menu button {
+  margin: 10px;
+  padding: 12px 25px;
+  font-size: 18px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #6a5acd, #483d8b); /* Gradient effect */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.start-menu button:hover {
+  transform: scale(1.1);
+  background: linear-gradient(45deg, #483d8b, #6a5acd);
+}
+
+/* Board styles */
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 1px;
+  margin: 20px auto;
+  background: #000;
+  border: 5px solid #8b0000; /* Deep red border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fffacd; /* Light yellow */
+  border: 1px solid #8b4513; /* Saddle brown */
+  position: relative;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.cell:nth-child(odd) {
+  background-color: #ffd700; /* Gold for alternate cells */
+}
+
+.cell:nth-child(even) {
+  background-color: #fffacd;
+}
+
+/* Pawn styles */
+.pawn {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.player-0 {
+  background: radial-gradient(circle, red, darkred);
+}
+
+.player-1 {
+  background: radial-gradient(circle, blue, darkblue);
+}
+
+.player-2 {
+  background: radial-gradient(circle, green, darkgreen);
+}
+
+.player-3 {
+  background: radial-gradient(circle, yellow, goldenrod);
+}
+
+/* Controls */
+.controls {
+  margin-top: 25px;
+}
+
+.controls button {
+  margin: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #32cd32, #228b22); /* Green gradient */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.controls button:hover {
+  transform: scale(1.1);
+  background: linear-gradient(45deg, #228b22, #32cd32);
+}
+
+/* Snake and Ladder styles */
+.cell.snake::before,
+.cell.ladder::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.cell.snake::before {
+  background-image: url("/snake.png"); /* Path to snake image */
+}
+
+.cell.ladder::before {
+  background-image: url("/ladder.png"); /* Path to ladder image */
+}
+
+.winner-message {
+  font-size: 24px;
+  font-weight: bold;
+  color: #32cd32; /* Bright green */
+  margin: 20px 0;
+  text-shadow: 0 0 10px rgba(50, 205, 50, 0.7);
+}
+
+.start-menu {
+  margin-top: 20px;
+}
+
+.start-menu h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.start-menu button {
+  margin: 10px;
+  padding: 12px 25px;
+  font-size: 18px;
+  cursor: pointer;
+  background: linear-gradient(45deg, #6a5acd, #483d8b);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.start-menu button:hover {
+  transform: scale(1.1);
+  background: linear-gradient(45deg, #483d8b, #6a5acd);
+}
