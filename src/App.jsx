@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import "./App.css";
 
 const snakes = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 87: 24 };
@@ -31,6 +32,15 @@ const Board = ({ cells, players }) => (
     ))}
   </div>
 );
+Board.propTypes = {
+  cells: PropTypes.arrayOf(PropTypes.number).isRequired,
+  players: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      position: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+};
 
 const App = () => {
   const [players, setPlayers] = useState([]);
@@ -88,33 +98,66 @@ const App = () => {
   };
 
   return (
-    <div className="game-container">
-      <h1>Snakes & Ladders</h1>
-      {!gameStarted ? (
-        <div className="start-menu">
-          <h2>Select Number of Players</h2>
-          <button onClick={() => startGame(2)}>2 Players</button>
-          <button onClick={() => startGame(4)}>4 Players</button>
-        </div>
-      ) : (
-        <>
-          {winner ? (
-            <h2 className="winner-message">{winner} Wins! 🎉</h2>
-          ) : (
-            <div className="controls">
-              <button onClick={rollDice}>Roll Dice</button>
-              {diceRoll !== null && (
-                <>
-                  <button onClick={movePawn}>Move {diceRoll} Steps</button>
-                  <button onClick={discardMove}>Discard Move</button>
-                </>
-              )}
+    <div className="container">
+      <div className="game-container">
+        <h2 className="text-3xl font-bold text-center text-white">
+          Round-2 Snake & Ladder Game
+        </h2>
+        {!gameStarted ? (
+          <div>
+            <div
+              className="start-menu"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <button className="btn" onClick={() => startGame(2)}>
+                2 Players
+              </button>
+              <button className="btn" onClick={() => startGame(4)}>
+                4 Players
+              </button>
             </div>
-          )}
-          <div>Current Dice Roll: {diceRoll || "-"}</div>
-          <Board cells={cells} players={players} />
-        </>
-      )}
+          </div>
+        ) : (
+          <>
+            {winner ? (
+              <h2 className="winner-message">{winner} Wins! 🎉</h2>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "rows" }}>
+                <div
+                  className="controls"
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <button className="btn" onClick={rollDice}>
+                    Roll Dice
+                  </button>
+                  {diceRoll !== null && (
+                    <>
+                      <button className="btn" onClick={movePawn}>
+                        Move {diceRoll} Steps
+                      </button>
+                      <button className="btn" onClick={discardMove}>
+                        Discard Move
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <Board cells={cells} players={players} />
+          </>
+        )}
+      </div>
     </div>
   );
 };
