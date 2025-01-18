@@ -10,6 +10,8 @@ export default function Board({ players }) {
     Array(players).fill(0),
   );
   const [eventMessage, setEventMessage] = useState("");
+  const [winner, setWinner] = useState(null); 
+
   const playerColors = [
     "bg-lime-500",
     "bg-blue-500",
@@ -31,7 +33,7 @@ export default function Board({ players }) {
 
   const snakes = {
     16: 6,
-    49: 11,
+    49: 30,
     56: 53,
     64: 60,
     87: 24,
@@ -57,23 +59,25 @@ export default function Board({ players }) {
       const currentPos = newPositions[turn - 1];
       const potentialNewPosition = currentPos + number;
 
-      let event = ""; // Variable to hold the event message
+      let event = "";
 
       if (potentialNewPosition <= 100) {
         let finalPosition = potentialNewPosition;
 
         if (ladders[finalPosition]) {
           finalPosition = ladders[finalPosition];
-          event = "LADDER!"; // Set the event message to "LADDER!"
+          event = "LADDER!";
         } else if (snakes[finalPosition]) {
           finalPosition = snakes[finalPosition];
-          event = "SNAKE!"; // Set the event message to "SNAKE!"
+          event = "SNAKE!";
         }
-
         newPositions[turn - 1] = finalPosition;
+
+        if (finalPosition === 100) {
+          setWinner(turn);
+        }
       }
 
-      // Update the event message state
       setEventMessage(event);
 
       return newPositions;
@@ -86,12 +90,16 @@ export default function Board({ players }) {
     });
 
     setShowButtons(false);
-    setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
+    setTurn((prevTurn) =>
+      prevTurn === players || winner ? (winner === prevTurn ? prevTurn : (prevTurn === players ? 1 : prevTurn + 1)) : (prevTurn === players ? 1 : prevTurn + 1)
+    );
   };
 
   const handleStay = () => {
     setShowButtons(false);
-    setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
+    setTurn((prevTurn) =>
+      prevTurn === players || winner ? (winner === prevTurn ? prevTurn : (prevTurn === players ? 1 : prevTurn + 1)) : (prevTurn === players ? 1 : prevTurn + 1)
+    );
   };
 
   const grid = [];
@@ -104,15 +112,10 @@ export default function Board({ players }) {
       const ladderStart = ladders[currentValue];
       const snakeStart = snakes[currentValue];
 
-      const ladderEnd = ladderStart ? ladders[ladderStart] : null;
-      const snakeEnd = snakeStart ? snakes[snakeStart] : null;
-
       rowSquares.push({
         number: currentValue,
         ladderStart,
-        ladderEnd,
         snakeStart,
-        snakeEnd,
       });
     }
     grid.push(rowSquares);
@@ -133,7 +136,6 @@ export default function Board({ players }) {
         <div className="font-medieval text-2xl">
           Turn: Player {turn}
         </div>
-        {/* Display Snake or Ladder message */}
         {eventMessage && (
           <div
             className={`text-xl font-bold ${
@@ -144,17 +146,21 @@ export default function Board({ players }) {
           </div>
         )}
 
-        {/* Create a flex container to make the dice and buttons stay in a row */}
+        {winner && (
+          <div className="text-xl font-bold text-yellow-500">
+            Winner!!! Player {winner}
+          </div>
+        )}
+
         <div className="flex flex-row space-x-8">
           <div
             className={`font-medieval w-20 h-20 flex justify-center items-center bg-[#4f9d9d] hover:bg-[#388f8f] rounded-md transition-all duration-1000 ${rolling ? "dice-roll" : ""}`}
             onClick={rollDice}
+            disabled={winner}
           >
             <div className="text-4xl font-bold">{number || "?"}</div>
           </div>
-
-          {/* Buttons next to the dice */}
-          {showButtons && (
+          {showButtons && !winner && (
             <div className="flex flex-col space-y-4">
               <button
                 onClick={handleMove}
@@ -210,7 +216,7 @@ export default function Board({ players }) {
 
       {/* Right Half */}
       <div className="flex items-center justify-center bg-gray-700">
-        <div className="grid grid-cols-10 gap-1">
+        <div className="grid grid-cols-10 gap-2">
           {grid.flat().map((cell, index) => {
             const playersOnSquare = positions
               .map((position, i) => (position === cell.number ? i : -1))
@@ -220,15 +226,9 @@ export default function Board({ players }) {
 
             if (cell.ladderStart) {
               cellBgColor = "bg-green-500";
-              if (cell.ladderEnd) {
-                ladderOrSnakeEndColor = "bg-green-300";
-              }
             }
             if (cell.snakeStart) {
               cellBgColor = "bg-red-500";
-              if (cell.snakeEnd) {
-                ladderOrSnakeEndColor = "bg-red-300"; 
-              }
             }
 
             return (
@@ -236,17 +236,9 @@ export default function Board({ players }) {
                 key={index}
                 className={`flex flex-col justify-center items-center w-12 h-12 ${cellBgColor} border-2 border-black rounded`}
               >
-                <span className="text-sm text-white">{cell.number}</span>
-                {cell.ladderStart && (
-                  <>
-                    <span className="text-xl">🚪</span>
-                  </>
-                )}
-                {cell.snakeStart && (
-                  <>
-                    <span className="text-xl">🐍</span>
-                  </>
-                )}                
+                <span className="text-sm text-white font-extrabold">{cell.number}</span>
+                {cell.ladderStart && <span className="text-xl">🚪</span>}
+                {cell.snakeStart && <span className="text-xl">🐍</span>}
                 <div className="relative w-full h-full flex items-center justify-center">
                   {playersOnSquare.map((player, index) => (
                     <div
