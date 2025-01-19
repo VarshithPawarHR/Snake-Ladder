@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Board({ players }) {
   const [number, setNumber] = useState(null);
@@ -10,7 +10,9 @@ export default function Board({ players }) {
     Array(players).fill(0),
   );
   const [eventMessage, setEventMessage] = useState("");
+  const [taskPlayers, setTaskPlayers] = useState({});
   const [winner, setWinner] = useState(null);
+  const [stayPlayers, setStayPlayers] = useState([]);
 
   const playerColors = [
     "bg-stone-300",
@@ -20,7 +22,7 @@ export default function Board({ players }) {
   ];
 
   const ladders = {
-    2: 38,
+    10: 38,
     8: 31,
     15: 26,
     21: 42,
@@ -42,11 +44,19 @@ export default function Board({ players }) {
   };
 
   const tasks = [
-    5, 12, 19, 24, 30, 34, 40, 44, 50, 59, 53, 67, 76, 73, 81, 84, 89, 93, 96,
-    99,
+    3, 7, 9, 5, 12, 19, 24, 30, 34, 40, 44, 50, 59, 53, 67, 76, 73, 81, 84, 89,
+    93, 96, 99,
   ];
 
   const rollDice = () => {
+    if (stayPlayers.includes(turn)) {
+      setEventMessage("You Miss Your Turn!");
+      setTimeout(() => {
+        setEventMessage("");
+        setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
+      }, 1500);
+      return;
+    }
     setRolling(true);
     setShowButtons(false);
     setTimeout(() => {
@@ -59,73 +69,72 @@ export default function Board({ players }) {
   };
 
   const handleMove = () => {
+    if (stayPlayers.includes(turn)) {
+      setStayPlayers((prevStayPlayers) =>
+        prevStayPlayers.filter((player) => player !== turn),
+      );
+
+      setShowButtons(false);
+      setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
+      return;
+    }
     setPositions((prevPositions) => {
       const newPositions = [...prevPositions];
       const currentPos = newPositions[turn - 1];
       const potentialNewPosition = currentPos + number;
-
       let event = "";
-
       if (potentialNewPosition <= 100) {
         let finalPosition = potentialNewPosition;
-
         if (ladders[finalPosition]) {
           finalPosition = ladders[finalPosition];
           event = "LADDER!";
         } else if (snakes[finalPosition]) {
           finalPosition = snakes[finalPosition];
           event = "SNAKE!";
-        } else if (tasks.includes(finalPosition)) {
-          event = "You have a task to perform!";
         }
-
+        if (!tasks.includes(finalPosition)) {
+          setTaskPlayers((prev) => {
+            const updated = { ...prev };
+            delete updated[turn];
+            return updated;
+          });
+        }
         newPositions[turn - 1] = finalPosition;
-
         if (finalPosition === 100) {
           setWinner(turn);
         }
+        if (tasks.includes(finalPosition)) {
+          setTaskPlayers((prev) => {
+            const updated = { ...prev };
+            updated[turn] = true;
+            return updated;
+          });
+        }
       }
-
       setEventMessage(event);
-
       return newPositions;
     });
-
     setPreviousPositions((prev) => {
       const newPrevPositions = [...prev];
       newPrevPositions[turn - 1] = positions[turn - 1];
       return newPrevPositions;
     });
-
     setShowButtons(false);
-    setTurn((prevTurn) =>
-      prevTurn === players || winner
-        ? winner === prevTurn
-          ? prevTurn
-          : prevTurn === players
-            ? 1
-            : prevTurn + 1
-        : prevTurn === players
-          ? 1
-          : prevTurn + 1,
-    );
+    setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
   };
 
   const handleStay = () => {
+    setStayPlayers((prevStayPlayers) => [...prevStayPlayers, turn]);
+    setTaskPlayers((prev) => {
+      const updated = { ...prev };
+      delete updated[turn];
+      return updated;
+    });
     setShowButtons(false);
-    setTurn((prevTurn) =>
-      prevTurn === players || winner
-        ? winner === prevTurn
-          ? prevTurn
-          : prevTurn === players
-            ? 1
-            : prevTurn + 1
-        : prevTurn === players
-          ? 1
-          : prevTurn + 1,
-    );
+    setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
   };
-
+  console.log(stayPlayers);
+  console.log(turn);
   const grid = [];
   for (let row = 9; row >= 0; row--) {
     const rowSquares = [];
@@ -142,6 +151,22 @@ export default function Board({ players }) {
     }
     grid.push(rowSquares);
   }
+
+  const changeTurnWhenMissed = () => {
+    setStayPlayers((prevStayPlayers) =>
+      prevStayPlayers.filter((player) => player !== turn),
+    );
+    setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
+  }
+
+  useEffect(() => {
+    if (eventMessage) {
+      const timer = setTimeout(() => {
+        setEventMessage("");
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [eventMessage]);
 
   return (
     <div className="h-screen w-screen grid grid-cols-[7fr_3fr]">
@@ -165,7 +190,7 @@ export default function Board({ players }) {
                 key={index}
                 className={`flex flex-col justify-center items-center w-[52px] h-[52px] ${cellBgColor} border-2 border-black rounded`}
               >
-                <span className="text-md text-white font-extrabold">
+                <span className="text-md text-white font-extrabold font-medieval">
                   {cell.number}
                 </span>
                 {cell.ladderStart && <span className="text-xl">🚪</span>}
@@ -190,63 +215,62 @@ export default function Board({ players }) {
         </div>
       </div>
       {/* Right Half */}
-      <div className="flex flex-col items-center justify-center space-y-12 bg-gray-800 text-white px-6">
-        <div className="font-medieval text-2xl">Turn: Player {turn}</div>
-        {eventMessage && (
-          <div
-            className={`text-xl font-bold ${
-              eventMessage === "SNAKE!"
-                ? "text-red-500"
-                : eventMessage === "LADDER!"
-                  ? "text-green-500"
-                  : "text-blue-500"
-            }`}
-          >
-            {eventMessage}
-          </div>
-        )}
-        {winner && (
-          <div className="text-xl font-bold text-yellow-500">
-            Winner!!! Player {winner}
-          </div>
-        )}
-        <div className="flex flex-row space-x-8">
-          <div
-            className={`cursor-pointer font-medieval w-20 h-20 flex justify-center items-center bg-[#4f9d9d] hover:bg-[#388f8f] rounded-md transition-all duration-1000 ${rolling ? "dice-roll" : ""}`}
-            onClick={rollDice}
-            disabled={winner}
-          >
-            <div className="text-4xl font-bold">{number || "?"}</div>
-          </div>
-          {showButtons && !winner && (
-            <div className="flex flex-col space-y-4 items-center justify-center">
-              {tasks.includes(positions[turn - 1]) ? (
-                <>
-                  <button
-                    onClick={handleMove}
-                    className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
-                  >
-                    Move
-                  </button>
-                  <button
-                    onClick={handleStay}
-                    className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
-                  >
-                    Stay
-                  </button>
-                </>
-              ) : (
+      {!winner && (
+        <div className="flex flex-col items-center justify-center space-y-12 bg-gray-800 text-white px-6">
+          <div className="font-medieval text-2xl">Turn: Team {turn}</div>
+          {eventMessage && (
+            <div
+              className={`text-xl font-bold ${eventMessage === "SNAKE!" ? "text-red-500" : "text-green-500"}`}
+            >
+              {eventMessage}
+            </div>
+          )}
+          {taskPlayers[turn] && (
+            <div className="text-xl font-bold text-blue-500">
+              You have a task to perform!
+            </div>
+          )}
+          <div className="flex flex-row space-x-8">
+            {stayPlayers.includes(turn) ? (
+              <div className="text-2xl font-bold text-red-500 cursor-pointer" onClick={() => changeTurnWhenMissed()}>
+                You Miss Your Turn!
+              </div>
+            ) : (
+              <div
+                className={`cursor-pointer font-medieval w-20 h-20 flex justify-center items-center bg-[#4f9d9d] hover:bg-[#388f8f] rounded-md transition-all duration-1000 ${rolling ? "dice-roll" : ""}`}
+                onClick={rollDice}
+                disabled={winner}
+              >
+                <div className="text-4xl font-bold">{number || "?"}</div>
+              </div>
+            )}
+            {showButtons && (
+              <div className="flex flex-col space-y-4 items-center justify-center">
                 <button
                   onClick={handleMove}
                   className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
                 >
                   Move
                 </button>
-              )}
-            </div>
-          )}
+                {taskPlayers[turn] && (
+                  <button
+                    onClick={handleStay}
+                    className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
+                  >
+                    Stay
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+      {/* Winner Message */}
+      {winner && (
+        <div className="flex items-center justify-center bg-gray-800 text-white text-3xl font-bold">
+          🎉 Winner: Team {winner} 🎉
+        </div>
+      )}
     </div>
   );
 }
