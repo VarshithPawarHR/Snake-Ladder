@@ -10,13 +10,13 @@ export default function Board({ players }) {
     Array(players).fill(0),
   );
   const [eventMessage, setEventMessage] = useState("");
-  const [winner, setWinner] = useState(null); 
+  const [winner, setWinner] = useState(null);
 
   const playerColors = [
-    "bg-lime-500",
-    "bg-blue-500",
-    "bg-indigo-500",
-    "bg-purple-500",
+    "bg-stone-300",
+    "bg-yellow-400",
+    "bg-pink-500",
+    "bg-purple-600",
   ];
 
   const ladders = {
@@ -40,6 +40,11 @@ export default function Board({ players }) {
     95: 75,
     98: 90,
   };
+
+  const tasks = [
+    5, 12, 19, 24, 30, 34, 40, 44, 50, 59, 53, 67, 76, 73, 81, 84, 89, 93, 96,
+    99,
+  ];
 
   const rollDice = () => {
     setRolling(true);
@@ -70,7 +75,10 @@ export default function Board({ players }) {
         } else if (snakes[finalPosition]) {
           finalPosition = snakes[finalPosition];
           event = "SNAKE!";
+        } else if (tasks.includes(finalPosition)) {
+          event = "You have a task to perform!";
         }
+
         newPositions[turn - 1] = finalPosition;
 
         if (finalPosition === 100) {
@@ -91,14 +99,30 @@ export default function Board({ players }) {
 
     setShowButtons(false);
     setTurn((prevTurn) =>
-      prevTurn === players || winner ? (winner === prevTurn ? prevTurn : (prevTurn === players ? 1 : prevTurn + 1)) : (prevTurn === players ? 1 : prevTurn + 1)
+      prevTurn === players || winner
+        ? winner === prevTurn
+          ? prevTurn
+          : prevTurn === players
+            ? 1
+            : prevTurn + 1
+        : prevTurn === players
+          ? 1
+          : prevTurn + 1,
     );
   };
 
   const handleStay = () => {
     setShowButtons(false);
     setTurn((prevTurn) =>
-      prevTurn === players || winner ? (winner === prevTurn ? prevTurn : (prevTurn === players ? 1 : prevTurn + 1)) : (prevTurn === players ? 1 : prevTurn + 1)
+      prevTurn === players || winner
+        ? winner === prevTurn
+          ? prevTurn
+          : prevTurn === players
+            ? 1
+            : prevTurn + 1
+        : prevTurn === players
+          ? 1
+          : prevTurn + 1,
     );
   };
 
@@ -108,10 +132,8 @@ export default function Board({ players }) {
     for (let col = 0; col < 10; col++) {
       const index = row % 2 === 0 ? 10 * row + col : 10 * (row + 1) - col - 1;
       const currentValue = index + 1;
-
       const ladderStart = ladders[currentValue];
       const snakeStart = snakes[currentValue];
-
       rowSquares.push({
         number: currentValue,
         ladderStart,
@@ -121,122 +143,31 @@ export default function Board({ players }) {
     grid.push(rowSquares);
   }
 
-  const leaderboard = positions
-    .map((position, index) => ({
-      player: index + 1,
-      position,
-      prevPosition: previousPositions[index],
-    }))
-    .sort((a, b) => b.position - a.position);
-
   return (
-    <div className="h-screen w-screen grid grid-cols-2">
+    <div className="h-screen w-screen grid grid-cols-[7fr_3fr]">
       {/* Left Half */}
-      <div className="flex flex-col items-center justify-center space-y-12 bg-gray-800 text-white px-6">
-        <div className="font-medieval text-2xl">
-          Turn: Player {turn}
-        </div>
-        {eventMessage && (
-          <div
-            className={`text-xl font-bold ${
-              eventMessage === "SNAKE!" ? "text-red-500" : "text-green-500"
-            }`}
-          >
-            {eventMessage}
-          </div>
-        )}
-
-        {winner && (
-          <div className="text-xl font-bold text-yellow-500">
-            Winner!!! Player {winner}
-          </div>
-        )}
-
-        <div className="flex flex-row space-x-8">
-          <div
-            className={`font-medieval w-20 h-20 flex justify-center items-center bg-[#4f9d9d] hover:bg-[#388f8f] rounded-md transition-all duration-1000 ${rolling ? "dice-roll" : ""}`}
-            onClick={rollDice}
-            disabled={winner}
-          >
-            <div className="text-4xl font-bold">{number || "?"}</div>
-          </div>
-          {showButtons && !winner && (
-            <div className="flex flex-col space-y-4">
-              <button
-                onClick={handleMove}
-                className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
-              >
-                Move
-              </button>
-              <button
-                onClick={handleStay}
-                className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
-              >
-                Stay
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Leaderboard */}
-        <div className="w-full overflow-auto max-h-60 bg-gray-700 rounded-lg p-2">
-          <h3 className="text-center text-lg font-bold text-white">
-            Leaderboard
-          </h3>
-          <table className="w-full mt-4 text-sm text-white">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">Player</th>
-                <th className="px-4 py-2">Position</th>
-                <th className="px-4 py-2">Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((entry, idx) => {
-                const positionChange = entry.position - entry.prevPosition;
-                const changeColor =
-                  positionChange > 0 ? "text-green-500" : "text-red-500";
-                return (
-                  <tr key={idx} className="text-center">
-                    <td className="px-4 py-2">{entry.player}</td>
-                    <td className="px-4 py-2">{entry.position}</td>
-                    <td className={`px-4 py-2 ${changeColor}`}>
-                      {positionChange !== 0 &&
-                        (positionChange > 0
-                          ? `+${positionChange}`
-                          : positionChange)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Right Half */}
       <div className="flex items-center justify-center bg-gray-700">
-        <div className="grid grid-cols-10 gap-2">
+        <div className="grid grid-cols-10 gap-1">
           {grid.flat().map((cell, index) => {
             const playersOnSquare = positions
               .map((position, i) => (position === cell.number ? i : -1))
               .filter((i) => i !== -1);
-
             let cellBgColor = "bg-gray-800";
-
-            if (cell.ladderStart) {
+            if (tasks.includes(cell.number)) {
+              cellBgColor = "bg-blue-500";
+            } else if (cell.ladderStart) {
               cellBgColor = "bg-green-500";
-            }
-            if (cell.snakeStart) {
+            } else if (cell.snakeStart) {
               cellBgColor = "bg-red-500";
             }
-
             return (
               <div
                 key={index}
-                className={`flex flex-col justify-center items-center w-12 h-12 ${cellBgColor} border-2 border-black rounded`}
+                className={`flex flex-col justify-center items-center w-[52px] h-[52px] ${cellBgColor} border-2 border-black rounded`}
               >
-                <span className="text-sm text-white font-extrabold">{cell.number}</span>
+                <span className="text-md text-white font-extrabold">
+                  {cell.number}
+                </span>
                 {cell.ladderStart && <span className="text-xl">🚪</span>}
                 {cell.snakeStart && <span className="text-xl">🐍</span>}
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -256,6 +187,64 @@ export default function Board({ players }) {
               </div>
             );
           })}
+        </div>
+      </div>
+      {/* Right Half */}
+      <div className="flex flex-col items-center justify-center space-y-12 bg-gray-800 text-white px-6">
+        <div className="font-medieval text-2xl">Turn: Player {turn}</div>
+        {eventMessage && (
+          <div
+            className={`text-xl font-bold ${
+              eventMessage === "SNAKE!"
+                ? "text-red-500"
+                : eventMessage === "LADDER!"
+                  ? "text-green-500"
+                  : "text-blue-500"
+            }`}
+          >
+            {eventMessage}
+          </div>
+        )}
+        {winner && (
+          <div className="text-xl font-bold text-yellow-500">
+            Winner!!! Player {winner}
+          </div>
+        )}
+        <div className="flex flex-row space-x-8">
+          <div
+            className={`cursor-pointer font-medieval w-20 h-20 flex justify-center items-center bg-[#4f9d9d] hover:bg-[#388f8f] rounded-md transition-all duration-1000 ${rolling ? "dice-roll" : ""}`}
+            onClick={rollDice}
+            disabled={winner}
+          >
+            <div className="text-4xl font-bold">{number || "?"}</div>
+          </div>
+          {showButtons && !winner && (
+            <div className="flex flex-col space-y-4 items-center justify-center">
+              {tasks.includes(positions[turn - 1]) ? (
+                <>
+                  <button
+                    onClick={handleMove}
+                    className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
+                  >
+                    Move
+                  </button>
+                  <button
+                    onClick={handleStay}
+                    className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
+                  >
+                    Stay
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleMove}
+                  className="bg-[#4f9d9d] hover:bg-[#388f8f] border-zinc-900 px-6 py-2 rounded-2xl text-lg font-medieval text-white text-center"
+                >
+                  Move
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
