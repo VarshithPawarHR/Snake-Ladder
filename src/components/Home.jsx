@@ -15,8 +15,8 @@ export default function Home() {
           <div className="w-full max-w-4xl text-center space-y-8 md:space-y-12">
             <div className="space-y-4">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
-                <span className="text-[#64ffda]">FINITE</span>
-                <span className="text-white">LOOP</span>
+                <span className="text-[#64ffda] font-medieval">FINITE LOOP </span>
+                <span className="text-white font-medieval">CLUB</span>
               </h1>
               <div className="space-y-2">
                 <p className="text-xl md:text-2xl text-gray-400 font-mono">
@@ -32,7 +32,7 @@ export default function Home() {
               <h2 className="text-2xl md:text-3xl text-[#64ffda] font-mono">
                 Select Players
               </h2>
-              
+
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
                 <button
                   onClick={() => clicked(2)}
@@ -50,7 +50,7 @@ export default function Home() {
             </div>
 
             <div className="text-gray-500 font-mono text-sm">
-              Powered by FiniteLoop Club
+              Powered by Finite Loop Club
             </div>
           </div>
         </div>

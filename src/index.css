@@ -3,45 +3,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer components {
-  .btn-primary {
-    @apply px-6 py-3 bg-game-secondary hover:bg-opacity-90 text-white rounded-lg 
-    font-medieval text-lg transition-all duration-300 transform hover:scale-105 
-    shadow-lg hover:shadow-xl;
-  }
-
-  .btn-secondary {
-    @apply px-6 py-3 border-2 border-game-accent text-game-accent hover:bg-game-accent 
-    hover:text-game-primary rounded-lg font-medieval text-lg transition-all duration-300 
-    transform hover:scale-105;
-  }
-
-  .game-card {
-    @apply bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-6 shadow-xl 
-    border border-white border-opacity-20;
-  }
-
-  .player-token {
-    @apply w-8 h-8 rounded-full shadow-lg transform transition-all duration-300;
-  }
-
-  .board-cell {
-    @apply border border-opacity-20 border-white p-2 text-center transition-all 
-    duration-300 hover:bg-opacity-30;
-  }
-
-  .dice {
-    @apply w-16 h-16 bg-white rounded-xl shadow-lg flex items-center justify-center 
-    text-game-primary text-2xl font-bold cursor-pointer transition-all duration-300 
-    hover:scale-110;
-  }
-}
-
 /* Custom Animations */
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-bounce-slow {
@@ -54,16 +24,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: theme('colors.game-primary');
+  background: theme("colors.game-primary");
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme('colors.game-secondary');
+  background: theme("colors.game-secondary");
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.game-accent');
+  background: theme("colors.game-accent");
 }
 
 @keyframes dice-roll-animation {
