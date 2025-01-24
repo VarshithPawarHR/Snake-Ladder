@@ -174,7 +174,7 @@ export default function Board({ players }) {
     <div className="min-h-screen lg:grid lg:grid-cols-[7fr,3fr]">
       <div className="p-1 md:p-1 flex items-center justify-center bg-[#0a192f]">
         <div className="game-card overflow-hidden p-1 bg-black/40 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-10 gap-1 md:gap-1.5">
+          <div className="grid grid-cols-10 gap-1 md:gap-2">
             {grid.flat().map((cell, index) => {
               const playersOnSquare = positions
                 .map((position, i) => (position === cell.number ? i : -1))
@@ -195,7 +195,7 @@ export default function Board({ players }) {
               return (
                 <div
                   key={index}
-                  className={`flex flex-col justify-center items-center w-[25px] h-[25px] sm:w-[35px] sm:h-[35px] md:w-[40px] md:h-[40px] lg:w-[52px] lg:h-[52px] ${cellStyle} border-2 border-[#233554] rounded-lg backdrop-blur-sm hover:bg-opacity-40`}
+                  className={`flex flex-col justify-center items-center w-[25px] h-[25px] sm:w-[35px] sm:h-[35px] md:w-[44px] md:h-[44px] lg:w-[60px] lg:h-[60px] ${cellStyle} border-2 border-[#233554] rounded-lg backdrop-blur-sm hover:bg-opacity-40`}
                 >
                   <span
                     className={`absolute top-0.5 left-0.5 md:top-1 md:left-1 text-[12px] sm:text-md md:text-md font-medieval ${numberColor}`}
