@@ -1,21 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Board from "./Board";
 
 export default function Home() {
-  const [players, setPlayers] = useState(0);
-
+  const [players, setPlayers] = useState(() => {
+    const storedPlayers = localStorage.getItem("players");
+    return storedPlayers ? storedPlayers : 0;
+  });
   const clicked = (x) => {
     setPlayers(x);
   };
 
+  useEffect(() => {
+    localStorage.setItem("players", players);
+  }, [players]);
+
   return (
     <>
       {players == 0 && (
-        <div className="min-h-screen w-full bg-[#0a192f] flex flex-col items-center justify-center p-4 md:p-8">
+        <div className="min-h-screen w-full bg-[#0a192f] flex flex-col items-center justify-center">
           <div className="w-full max-w-4xl text-center space-y-8 md:space-y-12">
             <div className="space-y-4">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
-                <span className="text-[#64ffda] font-medieval">FINITE LOOP </span>
+                <span className="text-[#64ffda] font-medieval">
+                  FINITE LOOP{" "}
+                </span>
                 <span className="text-white font-medieval">CLUB</span>
               </h1>
               <div className="space-y-2">

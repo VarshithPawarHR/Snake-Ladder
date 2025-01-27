@@ -1,14 +1,34 @@
 import { useState, useEffect } from "react";
+import QuitPopup from "./QuitPopup";
 
 export default function Board({ players }) {
   const [number, setNumber] = useState(null);
   const [rolling, setRolling] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
-  const [turn, setTurn] = useState(1);
-  const [positions, setPositions] = useState(Array(players).fill(0));
+  const [turn, setTurn] = useState(() => {
+    const storedTurn = JSON.parse(localStorage.getItem("turn"));
+    if (storedTurn && storedTurn !== 1) {
+      return storedTurn;
+    }
+    return 1;
+  });
+
+  const [positions, setPositions] = useState(() => {
+    const storedPositions = JSON.parse(localStorage.getItem("positions"));
+    if (
+      storedPositions &&
+      Array.isArray(storedPositions) &&
+      !storedPositions.every((val) => val === 0)
+    ) {
+      return storedPositions;
+    }
+    return Array(players).fill(0);
+  });
+
   const [previousPositions, setPreviousPositions] = useState(
     Array(players).fill(0),
   );
+
   const [eventMessage, setEventMessage] = useState("");
   const [taskPlayers, setTaskPlayers] = useState({});
   const [winner, setWinner] = useState(null);
@@ -20,6 +40,8 @@ export default function Board({ players }) {
     "bg-gradient-to-r from-orange-500 to-orange-600",
     "bg-gradient-to-r from-purple-500 to-purple-600",
   ];
+
+  const [showPopup, setShowPopup] = useState(false);
 
   const ladders = {
     10: 38,
@@ -48,6 +70,11 @@ export default function Board({ players }) {
     93, 96, 99,
   ];
 
+  useEffect(() => {
+    localStorage.setItem("positions", JSON.stringify(positions));
+    localStorage.setItem("turn", JSON.stringify(turn));
+  }, [positions]);
+
   const rollDice = () => {
     if (rolling || showButtons) return;
 
@@ -59,7 +86,6 @@ export default function Board({ players }) {
       }, 1500);
       return;
     }
-
     setRolling(true);
     setShowButtons(false);
     setTimeout(() => {
@@ -144,6 +170,13 @@ export default function Board({ players }) {
     setTurn((prevTurn) => (prevTurn === players ? 1 : prevTurn + 1));
   };
 
+  const handleQuit = () => {
+    localStorage.removeItem("positions");
+    localStorage.removeItem("players");
+    localStorage.removeItem("turn");
+    window.location.reload();
+  };
+
   useEffect(() => {
     if (eventMessage) {
       const timer = setTimeout(() => {
@@ -172,7 +205,7 @@ export default function Board({ players }) {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[7fr,3fr]">
-      <div className="p-1 md:p-1 flex items-center justify-center bg-[#0a192f]">
+      <div className="flex items-center justify-center bg-[#0a192f]">
         <div className="game-card overflow-hidden p-1 bg-black/40 rounded-2xl shadow-2xl">
           <div className="grid grid-cols-10 gap-1 md:gap-2">
             {grid.flat().map((cell, index) => {
@@ -236,14 +269,28 @@ export default function Board({ players }) {
         </div>
       </div>
 
-      <div className="bg-[#112240]/90 p-2 md:p-4 flex flex-col justify-center space-y-4 md:space-y-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#64ffda] mb-2 font-medieval">
-            FINITE LOOP <span className="text-white">CLUB </span> 
+      <div className="bg-[#112240]/90 flex flex-col justify-center space-y-4 md:space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-[#64ffda] font-medieval">
+            FINITE LOOP <span className="text-white">CLUB </span>
           </h1>
           <p className="text-sm text-gray-400">Snake & Ladder Championship</p>
         </div>
-
+        <button
+          onClick={() => {
+            setShowPopup(true);
+          }}
+          className="w-full px-6 py-2 border border-[#64ffda] bg-[#ff1b1b]/50 font-medieval text-sm md:text-base font-semibold text-[#112240] bg-#112240 rounded-lg transition-all transform duration-75 hover:bg-[#ff1b1b]/80"
+        >
+          Quit Game
+        </button>
+        {showPopup && (
+          <QuitPopup
+            message="Are you sure you want to quit the game?"
+            onConfirm={handleQuit}
+            onCancel={() => setShowPopup(false)}
+          />
+        )}
         {!winner ? (
           <>
             {taskPlayers[turn] && (
